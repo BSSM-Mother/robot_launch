@@ -16,6 +16,11 @@ def generate_launch_description():
     robot_description = Command(['xacro ', robot_urdf_xacro])
     
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'camera_device_id',
+            default_value='0',
+            description='USB camera device index (0, 1, 2...)'
+        ),
         # 로봇 상태 발행자 (robot_state_publisher)
         Node(
             package='robot_state_publisher',
@@ -44,6 +49,22 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'use_sim_time': True},
+            ]
+        ),
+        
+        # USB 카메라 (image_tools cam2image)
+        Node(
+            package='image_tools',
+            executable='cam2image',
+            output='screen',
+            parameters=[
+                {'device_id': LaunchConfiguration('camera_device_id')},
+                {'width': 640},
+                {'height': 480},
+                {'frequency': 30.0},
+            ],
+            remappings=[
+                ('/image', '/camera/image_raw'),
             ]
         ),
         
