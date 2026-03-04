@@ -21,8 +21,8 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'model_path',
-            default_value='yolo11n_ncnn_model',
-            description='YOLO11 NCNN 모델 디렉터리 경로'
+            default_value='yolov8n_ncnn_model',
+            description='YOLO NCNN 모델 디렉터리 경로'
         ),
 
         # ── 추적 제어 노드 (C++) ──────────────────────────────
