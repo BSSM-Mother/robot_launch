@@ -45,11 +45,13 @@ def generate_launch_description():
             package='camera_ros',
             executable='camera_node',
             output='screen',
-            namespace='camera',
             parameters=[
                 {'width': 320},
                 {'height': 240},
                 {'format': 'RGB888'},
+            ],
+            remappings=[
+                ('/camera/image_raw', '/camera/image_raw'),
             ],
         ),
 
