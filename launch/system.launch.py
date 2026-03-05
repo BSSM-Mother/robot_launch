@@ -1,6 +1,6 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -14,10 +14,6 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
-        # 시스템 IPA 모듈 사용 (ROS Jazzy 번들 libcamera 버전 불일치 우회)
-        SetEnvironmentVariable('LIBCAMERA_IPA_MODULE_PATH', '/usr/lib/aarch64-linux-gnu/libcamera'),
-        SetEnvironmentVariable('LIBCAMERA_IPA_FORCE_ISOLATION', '0'),
-
         DeclareLaunchArgument(
             'model_path',
             default_value='yolov8n_ncnn_model',
@@ -44,7 +40,7 @@ def generate_launch_description():
             ]
         ),
 
-        # ── Pi Camera (CSI, libcamera 기반) ──────────────────
+        # ── Pi Camera (CSI, libcamera 기반 — 소스 빌드) ───────
         Node(
             package='camera_ros',
             executable='camera_node',
