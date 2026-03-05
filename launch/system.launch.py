@@ -1,6 +1,6 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -14,6 +14,9 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
+        # IPA를 별도 프로세스 대신 인라인 실행 → IPC 타임아웃 방지
+        SetEnvironmentVariable('LIBCAMERA_IPA_FORCE_ISOLATION', '0'),
+
         DeclareLaunchArgument(
             'model_path',
             default_value='yolov8n_ncnn_model',
@@ -49,6 +52,7 @@ def generate_launch_description():
             parameters=[
                 {'width': 320},
                 {'height': 240},
+                {'format': 'RGB888'},
             ],
         ),
 
