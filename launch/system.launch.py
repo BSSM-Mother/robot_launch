@@ -15,11 +15,6 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
-            'camera_device_id',
-            default_value='0',
-            description='USB 카메라 디바이스 인덱스 (0, 1, 2...)'
-        ),
-        DeclareLaunchArgument(
             'model_path',
             default_value='yolov8n_ncnn_model',
             description='YOLO NCNN 모델 디렉터리 경로'
@@ -45,20 +40,16 @@ def generate_launch_description():
             ]
         ),
 
-        # ── USB 카메라 (Pi 최적화: 320×240 @ 15fps) ───────────
+        # ── Pi Camera (CSI, libcamera 기반) ──────────────────
         Node(
-            package='image_tools',
-            executable='cam2image',
+            package='camera_ros',
+            executable='camera_node',
             output='screen',
+            namespace='camera',
             parameters=[
-                {'device_id': LaunchConfiguration('camera_device_id')},
                 {'width': 320},
                 {'height': 240},
-                {'frequency': 15.0},
             ],
-            remappings=[
-                ('/image', '/camera/image_raw'),
-            ]
         ),
 
         # ── 사람/공 감지 노드 - YOLO11 NCNN (Python) ─────────
@@ -69,7 +60,7 @@ def generate_launch_description():
             parameters=[
                 {'use_sim_time': False},
                 {'model_path': LaunchConfiguration('model_path')},
-                {'conf_threshold': 0.4},
+                {'conf_threshold': 0.2},
             ]
         ),
     ])
