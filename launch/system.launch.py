@@ -14,7 +14,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
-        # IPA를 별도 프로세스 대신 인라인 실행 → IPC 타임아웃 방지
+        # 시스템 IPA 모듈 사용 (ROS Jazzy 번들 libcamera 버전 불일치 우회)
+        SetEnvironmentVariable('LIBCAMERA_IPA_MODULE_PATH', '/usr/lib/aarch64-linux-gnu/libcamera'),
         SetEnvironmentVariable('LIBCAMERA_IPA_FORCE_ISOLATION', '0'),
 
         DeclareLaunchArgument(
