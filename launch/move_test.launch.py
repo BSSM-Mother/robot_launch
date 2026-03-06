@@ -1,0 +1,17 @@
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+    return LaunchDescription([
+
+        # ── 바퀴 제어 노드만 실행 (cmd_vel 수신 → 모터 출력) ──
+        Node(
+            package='robot_base',
+            executable='wheel_controller',
+            output='screen',
+            parameters=[
+                {'use_sim_time': False},
+            ]
+        ),
+    ])

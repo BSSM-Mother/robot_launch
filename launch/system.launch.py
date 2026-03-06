@@ -19,7 +19,16 @@ def generate_launch_description():
             default_value='yolov8n_ncnn_model',
             description='YOLO NCNN 모델 디렉터리 경로'
         ),
-
+        DeclareLaunchArgument(
+            'mqtt_host',
+            default_value='localhost',
+            description='MQTT 브로커 호스트'
+        ),
+        DeclareLaunchArgument(
+            'mqtt_port',
+            default_value='1883',
+            description='MQTT 브로커 포트'
+        ),
         # ── 추적 제어 노드 (C++) ──────────────────────────────
         Node(
             package='robot_control',
@@ -29,7 +38,16 @@ def generate_launch_description():
                 {'use_sim_time': False},
             ]
         ),
-
+        # ── MQTT 브리지 노드 (Python) ────────────────────────────────
+        Node(
+            package='robot_mqtt',
+            executable='mqtt_bridge',
+            output='screen',
+            parameters=[
+                {'mqtt_host': LaunchConfiguration('mqtt_host')},
+                {'mqtt_port': LaunchConfiguration('mqtt_port')},
+            ]
+        ),
         # ── 바퀴 제어 노드 (C++) ──────────────────────────────
         Node(
             package='robot_base',
