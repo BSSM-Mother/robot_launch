@@ -20,14 +20,9 @@ def generate_launch_description():
             description='YOLO NCNN 모델 디렉터리 경로'
         ),
         DeclareLaunchArgument(
-            'mqtt_host',
-            default_value='localhost',
-            description='MQTT 브로커 호스트'
-        ),
-        DeclareLaunchArgument(
-            'mqtt_port',
-            default_value='1883',
-            description='MQTT 브로커 포트'
+            'api_url',
+            default_value='http://localhost:5000/api/robot/state',
+            description='폴링할 REST API URL'
         ),
         # ── 추적 제어 노드 (C++) ──────────────────────────────
         Node(
@@ -38,14 +33,26 @@ def generate_launch_description():
                 {'use_sim_time': False},
             ]
         ),
-        # ── MQTT 브리지 노드 (Python) ────────────────────────────────
+        # ── API 폴링 브리지 노드 (Python) ─────────────────────
+        # GET {api_url} → {"follow": bool, "buzzer": bool}
         Node(
             package='robot_mqtt',
-            executable='mqtt_bridge',
+            executable='api_bridge',
             output='screen',
             parameters=[
-                {'mqtt_host': LaunchConfiguration('mqtt_host')},
-                {'mqtt_port': LaunchConfiguration('mqtt_port')},
+                {'api_url': LaunchConfiguration('api_url')},
+                {'poll_interval_s': 1.0},
+            ]
+        ),
+        # ── 부저 노드 (Python, GPIO) — robot_base ────────────
+        Node(
+            package='robot_base',
+            executable='buzzer_node',
+            output='screen',
+            parameters=[
+                {'gpio_pin': 17},
+                {'frequency': 2000},
+                {'pattern': 'short'},
             ]
         ),
         # ── 바퀴 제어 노드 (C++) ──────────────────────────────
