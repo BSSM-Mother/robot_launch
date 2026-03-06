@@ -73,6 +73,29 @@ def generate_launch_description():
             ],
         ),
 
+        # ── 장애물 회피 노드 (C++) ─────────────────────────────
+        # /scan (LiDAR) + /cmd_vel_raw → /cmd_vel
+        # robot_radius: 로봇 반지름(m), safety_margin: 추가 여유(m)
+        Node(
+            package='robot_control',
+            executable='obstacle_avoider',
+            output='screen',
+            parameters=[
+                {'use_sim_time': False},
+                # 로봇 지름 140mm → 반지름 0.07m
+                {'robot_radius': 0.07},
+                # stop_dist = 0.07 + 0.03 = 0.10m
+                # 200mm 복도 중앙 주행 시 라이다→벽 거리가 0.10m이므로
+                # 이 값보다 작아지면 긴급 정지
+                {'safety_margin': 0.03},
+                # slow_dist = 0.10 + 0.25 = 0.35m (이 거리부터 감속 시작)
+                {'slowdown_zone': 0.25},
+                {'forward_half_angle_deg': 35.0},
+                {'side_start_deg': 40.0},
+                {'side_end_deg': 140.0},
+            ]
+        ),
+
         # ── 사람/공 감지 노드 - YOLO11 NCNN (Python) ─────────
         Node(
             package='robot_perception',
