@@ -20,9 +20,24 @@ def generate_launch_description():
             description='YOLO NCNN 모델 디렉터리 경로'
         ),
         DeclareLaunchArgument(
-            'api_url',
-            default_value='http://localhost:5000/api/robot/state',
-            description='폴링할 REST API URL'
+            'mqtt_host',
+            default_value='localhost',
+            description='MQTT 브로커 호스트'
+        ),
+        DeclareLaunchArgument(
+            'mqtt_port',
+            default_value='1883',
+            description='MQTT 브로커 포트'
+        ),
+        DeclareLaunchArgument(
+            'serial_port',
+            default_value='/dev/ttyUSB0',
+            description='LiDAR 시리얼 포트'
+        ),
+        DeclareLaunchArgument(
+            'serial_baudrate',
+            default_value='460800',
+            description='LiDAR 시리얼 보드레이트 (C1=460800)'
         ),
         # ── 추적 제어 노드 (C++) ──────────────────────────────
         Node(
@@ -33,26 +48,14 @@ def generate_launch_description():
                 {'use_sim_time': False},
             ]
         ),
-        # ── API 폴링 브리지 노드 (Python) ─────────────────────
-        # GET {api_url} → {"follow": bool, "buzzer": bool}
+        # ── MQTT 브리지 노드 (Python) ────────────────────────────────
         Node(
             package='robot_mqtt',
-            executable='api_bridge',
+            executable='mqtt_bridge',
             output='screen',
             parameters=[
-                {'api_url': LaunchConfiguration('api_url')},
-                {'poll_interval_s': 1.0},
-            ]
-        ),
-        # ── 부저 노드 (Python, GPIO) — robot_base ────────────
-        Node(
-            package='robot_base',
-            executable='buzzer_node',
-            output='screen',
-            parameters=[
-                {'gpio_pin': 17},
-                {'frequency': 2000},
-                {'pattern': 'short'},
+                {'mqtt_host': LaunchConfiguration('mqtt_host')},
+                {'mqtt_port': LaunchConfiguration('mqtt_port')},
             ]
         ),
         # ── 바퀴 제어 노드 (C++) ──────────────────────────────
@@ -80,29 +83,6 @@ def generate_launch_description():
             ],
         ),
 
-        # ── 장애물 회피 노드 (C++) ─────────────────────────────
-        # /scan (LiDAR) + /cmd_vel_raw → /cmd_vel
-        # robot_radius: 로봇 반지름(m), safety_margin: 추가 여유(m)
-        Node(
-            package='robot_control',
-            executable='obstacle_avoider',
-            output='screen',
-            parameters=[
-                {'use_sim_time': False},
-                # 로봇 지름 140mm → 반지름 0.07m
-                {'robot_radius': 0.07},
-                # stop_dist = 0.07 + 0.03 = 0.10m
-                # 200mm 복도 중앙 주행 시 라이다→벽 거리가 0.10m이므로
-                # 이 값보다 작아지면 긴급 정지
-                {'safety_margin': 0.03},
-                # slow_dist = 0.10 + 0.25 = 0.35m (이 거리부터 감속 시작)
-                {'slowdown_zone': 0.25},
-                {'forward_half_angle_deg': 35.0},
-                {'side_start_deg': 40.0},
-                {'side_end_deg': 140.0},
-            ]
-        ),
-
         # ── 사람/공 감지 노드 - YOLO11 NCNN (Python) ─────────
         Node(
             package='robot_perception',
@@ -112,6 +92,23 @@ def generate_launch_description():
                 {'use_sim_time': False},
                 {'model_path': LaunchConfiguration('model_path')},
                 {'conf_threshold': 0.2},
+            ]
+        ),
+
+        # ── LiDAR 드라이버 노드 (sllidar_ros2) ───────────────
+        Node(
+            package='sllidar_ros2',
+            executable='sllidar_node',
+            name='sllidar_node',
+            output='screen',
+            parameters=[
+                {'channel_type': 'serial'},
+                {'serial_port': LaunchConfiguration('serial_port')},
+                {'serial_baudrate': LaunchConfiguration('serial_baudrate')},
+                {'frame_id': 'laser'},
+                {'inverted': False},
+                {'angle_compensate': True},
+                {'scan_mode': 'Standard'},
             ]
         ),
     ])
