@@ -15,7 +15,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'model_path',
-            default_value='yolov8n_ncnn_model',
+            default_value='/home/robot/robot_workspace/yolov8n_ncnn_model',
             description='YOLO NCNN 모델 디렉터리 경로'
         ),
         DeclareLaunchArgument(
