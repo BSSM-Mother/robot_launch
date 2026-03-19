@@ -82,6 +82,7 @@ def generate_launch_description():
                 {'use_sim_time': False},
                 {'model_path': LaunchConfiguration('model_path')},
                 {'conf_threshold': 0.2},
+                {'infer_every': 1},
             ]
         ),
 
