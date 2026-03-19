@@ -1,4 +1,3 @@
-import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -28,16 +27,6 @@ def generate_launch_description():
             'mqtt_port',
             default_value='1883',
             description='MQTT 브로커 포트'
-        ),
-        DeclareLaunchArgument(
-            'serial_port',
-            default_value='/dev/ttyUSB0',
-            description='LiDAR 시리얼 포트'
-        ),
-        DeclareLaunchArgument(
-            'serial_baudrate',
-            default_value='460800',
-            description='LiDAR 시리얼 보드레이트 (C1=460800)'
         ),
         # ── 추적 제어 노드 (C++) ──────────────────────────────
         Node(
@@ -95,20 +84,4 @@ def generate_launch_description():
             ]
         ),
 
-        # ── LiDAR 드라이버 노드 (sllidar_ros2) ───────────────
-        Node(
-            package='sllidar_ros2',
-            executable='sllidar_node',
-            name='sllidar_node',
-            output='screen',
-            parameters=[
-                {'channel_type': 'serial'},
-                {'serial_port': LaunchConfiguration('serial_port')},
-                {'serial_baudrate': LaunchConfiguration('serial_baudrate')},
-                {'frame_id': 'laser'},
-                {'inverted': False},
-                {'angle_compensate': True},
-                {'scan_mode': 'Standard'},
-            ]
-        ),
     ])
