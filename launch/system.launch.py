@@ -83,7 +83,8 @@ def generate_launch_description():
             parameters=[
                 {'use_sim_time': False},
                 {'model_path': LaunchConfiguration('model_path')},
-                {'conf_threshold': 0.2},
+                {'conf_threshold': 0.1},
+                {'target_height_ratio': 0.60},  # 박스가 프레임 60% 차지할 때 정지 (클수록 더 가까이)
                 {'infer_every': 1},
             ]
         ),
