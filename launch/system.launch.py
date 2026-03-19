@@ -66,8 +66,8 @@ def generate_launch_description():
             executable='camera_node',
             output='screen',
             parameters=[
-                {'width': 320},
-                {'height': 240},
+                {'width': 640},
+                {'height': 480},
                 {'format': 'RGB888'},
             ],
             remappings=[
