@@ -35,7 +35,8 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'use_sim_time': False},
-            ]
+            ],
+            remappings=[('cmd_vel_raw', 'cmd_vel')],
         ),
         # ── MQTT 브리지 노드 (Python) ────────────────────────────────
         Node(
